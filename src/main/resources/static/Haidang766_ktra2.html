@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý giảng viên</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d3d3d3; /* Màu nền của trang thành xám */
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px; /* Tăng độ rộng tối đa của container */
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f7f9fc; /* Màu nền cho phần quản lý giảng viên */
+        }
+
+        h1 {
+            text-align: center;
+            color: red; /* Đổi màu chữ thành màu đỏ */
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #495057;
+            margin: 15px 0;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: bold; /* In đậm */
+            font-style: italic; /* In nghiêng */
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff; /* Màu nền của nút thêm */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Màu nền của nút thêm khi hover */
+        }
+
+        .lecturer-list {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép các khung giảng viên xuống hàng */
+            gap: 20px; /* Khoảng cách giữa các khung */
+            margin-top: 20px; /* Khoảng cách giữa tiêu đề danh sách và danh sách */
+        }
+
+        .lecturer-card {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            width: calc(33.333% - 20px); /* Mỗi khung chiếm một phần ba chiều rộng */
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .lecturer-card:hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .lecturer-info {
+            margin: 10px 0;
+        }
+
+        .btn-edit {
+            background-color: #28a745; /* Màu xanh lục cho nút sửa */
+        }
+
+        .btn-edit:hover {
+            background-color: #218838; /* Màu xanh lục đậm khi hover */
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container input[type="text"] {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+
+        .search-container button {
+            flex-shrink: 0;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 768px) {
+            .lecturer-card {
+                width: calc(50% - 20px); /* Hai cột trên màn hình nhỏ */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lecturer-card {
+                width: 100%; /* Một cột trên màn hình rất nhỏ */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý giảng viên</h1>
+
+        <!-- Form để thêm và cập nhật giảng viên -->
+        <div>
+            <h3>Thêm/Cập nhật giảng viên</h3>
+            <input type="hidden" id="lecturerId">
+            <div class="form-group">
+                <label>Mã giảng viên:</label>
+                <input type="text" id="lecturerCode">
+            </div>
+            <div class="form-group">
+                <label>Họ và tên:</label>
+                <input type="text" id="fullName">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="email">
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại:</label>
+                <input type="text" id="phoneNumber">
+            </div>
+            <div class="form-group">
+                <label>Khoa giảng dạy:</label>
+                <input type="text" id="faculty">
+            </div>
+            <div class="form-group">
+                <label>Chuyên ngành:</label>
+                <input type="text" id="subject">
+            </div>
+            <button onclick="addOrUpdateLecturer()">Lưu</button>
+        </div>
+
+        <hr>
+
+        <!-- Form tìm kiếm giảng viên -->
+        <div class="search-container">
+            <h3>Tìm kiếm giảng viên</h3>
+            <input type="text" id="searchQuery" placeholder="Nhập mã giảng viên hoặc họ và tên">
+            <button onclick="searchLecturers()">Tìm kiếm</button>
+        </div>
+
+        <hr>
+
+        <!-- Danh sách giảng viên -->
+        <h3>Danh sách giảng viên</h3>
+        <div id="lecturerList" class="lecturer-list">
+            <!-- Danh sách giảng viên sẽ được chèn tại đây -->
+        </div>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://localhost:8080/lecturers';
+
+        // Lấy danh sách giảng viên
+        function getLecturers() {
+            fetch(apiBaseUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const lecturerList = document.getElementById('lecturerList');
+                    lecturerList.innerHTML = '';
+                    data.forEach(lecturer => {
+                        lecturerList.innerHTML += `
+                            <div class="lecturer-card">
+                                <div class="lecturer-info">
+                                    <strong>${lecturer.fullName}</strong> (${lecturer.lecturerCode})
+                                </div>
+                                <div class="lecturer-info">Email: ${lecturer.email}</div>
+                                <div class="lecturer-info">Số điện thoại: ${lecturer.phoneNumber}</div>
+                                <div class="lecturer-info">Khoa giảng dạy: ${lecturer.faculty}</div>
+                                <div class="lecturer-info">Chuyên ngành: ${lecturer.subject}</div>
+                                <div>
+                                    <button class="btn-edit" onclick="editLecturer(${lecturer.id})">Sửa</button>
+                                    <button class="btn-delete" onclick="deleteLecturer(${lecturer.id})">Xóa</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        // Thêm hoặc cập nhật giảng viên
+        function addOrUpdateLecturer() {
+            const id = document.getElementById('lecturerId').value;
+            const lecturer = {
+                lecturerCode: document.getElementById('lecturerCode').value,
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                faculty: document.getElementById('faculty').value,
+                subject: document.getElementById('subject').value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${apiBaseUrl}/${id}` : apiBaseUrl;
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lecturer)
+            })
+            .then(response => response.json())
+            .then(() => {
+                alert(id ? 'Cập nhật thành công' : 'Thêm mới thành công');
+                getLecturers();
+                resetForm();
+            });
+        }
+
+        // Xóa giảng viên
+        function deleteLecturer(id) {
+            if (confirm('Giảng viên này sẽ bị xóa! bạn chắc chắn xóa?')) {
+                fetch(`${apiBaseUrl}/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(() => {
+                    alert('Xóa thành công');
+                    getLecturers();
+                });
+            }
+        }
+
+        // Tìm kiếm giảng viên
+        function searchLecturers() {
+            const query = document.getElementById('searchQuery').value;
+            fetch(`${apiBaseUrl}/search?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const lecturerList = document.getElementById('lecturerList');
+                    lecturerList.innerHTML = '';
+                    data.forEach(lecturer => {
+                        lecturerList.innerHTML += `
+                            <div class="lecturer-card">
+                                <div class="lecturer-info">
+                                    <strong>${lecturer.fullName}</strong> (${lecturer.lecturerCode})
+                                </div>
+                                <div class="lecturer-info">Email: ${lecturer.email}</div>
+                                <div class="lecturer-info">Số điện thoại: ${lecturer.phoneNumber}</div>
+                                <div class="lecturer-info">Khoa giảng dạy: ${lecturer.faculty}</div>
+                                <div class="lecturer-info">Chuyên ngành: ${lecturer.subject}</div>
+                                <div>
+                                    <button class="btn-edit" onclick="editLecturer(${lecturer.id})">Sửa</button>
+                                    <button class="btn-delete" onclick="deleteLecturer(${lecturer.id})">Xóa</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        // Sửa giảng viên
+        function editLecturer(id) {
+            fetch(`${apiBaseUrl}/${id}`)
+                .then(response => response.json())
+                .then(lecturer => {
+                    document.getElementById('lecturerId').value = lecturer.id;
+                    document.getElementById('lecturerCode').value = lecturer.lecturerCode;
+                    document.getElementById('fullName').value = lecturer.fullName;
+                    document.getElementById('email').value = lecturer.email;
+                    document.getElementById('phoneNumber').value = lecturer.phoneNumber;
+                    document.getElementById('faculty').value = lecturer.faculty;
+                    document.getElementById('subject').value = lecturer.subject;
+                });
+        }
+
+        // Reset form sau khi thêm hoặc cập nhật
+        function resetForm() {
+            document.getElementById('lecturerId').value = '';
+            document.getElementById('lecturerCode').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('faculty').value = '';
+            document.getElementById('subject').value = '';
+        }
+
+        // Khởi tạo danh sách giảng viên khi trang được tải
+        window.onload = getLecturers;
+    </script>
+</body>
+</html>
